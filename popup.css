@@ -1,0 +1,101 @@
+body {
+  width: 300px;
+  font-family: "Arial", sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 10px;
+}
+
+#pet-container {
+  background-color: #ffffff;
+  border: 2px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+#pet-canvas {
+  display: block;
+  margin: 0 auto;
+  background-color: transparent; /* Light blue background */
+}
+
+#pet-info,
+#pet-stats {
+  margin-top: 15px;
+  text-align: center;
+}
+
+#pet-info div,
+#pet-stats div {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+#controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+button {
+  position: relative;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#feed-btn {
+  background-color: #ff9800;
+}
+
+#play-btn {
+  background-color: #2196f3;
+}
+
+#clean-btn {
+  background-color: #4caf50;
+}
+
+#sleep-btn {
+  background-color: #9c27b0;
+}
+
+#mood-value,
+#hunger-value,
+#happiness-value,
+#cleanliness-value,
+#energy-value {
+  font-weight: bold;
+}
+
+#hunger {
+  color: #ff9800;
+}
+#happiness {
+  color: #2196f3;
+}
+#cleanliness {
+  color: #4caf50;
+}
+#energy {
+  color: #9c27b0;
+}

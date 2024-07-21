@@ -3,34 +3,80 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Capybara Pet</title>
+    <title>Virtual Pet</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <div id="pet-container">
-      <canvas id="pet-canvas"></canvas>
-
-      <div id="pet-info">
-        <div id="pet-mood">Mood: <span id="mood-value">Normal</span></div>
+    <!-- Onboarding HTML -->
+    <div id="onboarding">
+      <div id="welcome-screen" class="screen">
+        <h1>Welcome to Your Virtual Pet!</h1>
+        <p>Ready to start your journey?</p>
+        <button id="get-started-btn" class="primary-btn">Get Started</button>
       </div>
-
-      <div id="pet-stats">
-        <div id="hunger">Hunger: <span id="hunger-value">50</span></div>
-        <div id="happiness">
-          Happiness: <span id="happiness-value">50</span>
+      <div id="choose-egg-screen" class="screen hidden">
+        <h1>Choose an Egg</h1>
+        <div id="egg-options">
+          <!-- Egg options here -->
         </div>
-        <div id="cleanliness">
-          Cleanliness: <span id="cleanliness-value">50</span>
+        <button id="next-choose-egg-btn" class="primary-btn">Next</button>
+      </div>
+      <div id="name-egg-screen" class="screen hidden">
+        <h1>Name Your Egg</h1>
+        <input type="text" id="egg-name-input" placeholder="Enter pet name" />
+        <button id="next-name-egg-btn" class="primary-btn">Next</button>
+      </div>
+      <div id="hatching-screen" class="screen hidden">
+        <h1>Your egg is hatching...</h1>
+        <div id="hatching-animation">
+          <!-- Hatching animation here -->
         </div>
-        <div id="energy">Energy: <span id="energy-value">50</span></div>
+      </div>
+      <div id="pet-intro-screen" class="screen hidden">
+        <h1>Meet Your New Pet!</h1>
+        <div id="pet-intro">
+          <canvas id="pet-canvas-intro"></canvas>
+        </div>
+        <button id="continue-btn" class="primary-btn">Continue</button>
+      </div>
+      <div id="tutorial-screen" class="screen hidden">
+        <h1>Tutorial</h1>
+        <div id="tutorial-steps">
+          <!-- Tutorial steps here -->
+        </div>
+        <button id="finish-tutorial-btn" class="primary-btn">Finish</button>
+      </div>
+      <div id="daily-care-screen" class="screen hidden">
+        <h1>Daily Care</h1>
+        <p>Take care of your pet daily to keep them happy and healthy!</p>
+        <button id="finish-onboarding-btn" class="primary-btn">Finish</button>
       </div>
     </div>
 
-    <div id="controls">
-      <button id="feed-btn">Feed <span id="feed-timer"></span></button>
-      <button id="play-btn">Play <span id="play-timer"></span></button>
-      <button id="clean-btn">Clean <span id="clean-timer"></span></button>
-      <button id="sleep-btn">Sleep <span id="sleep-timer"></span></button>
+    <!-- Main App HTML -->
+    <div id="main-app" class="hidden">
+      <div id="pet-container">
+        <canvas id="pet-canvas-main"></canvas>
+        <div id="pet-info">
+          <div id="pet-mood">Mood: <span id="mood-value">Normal</span></div>
+        </div>
+        <div id="pet-stats">
+          <div id="hunger">Hunger: <span id="hunger-value">50</span></div>
+          <div id="happiness">
+            Happiness: <span id="happiness-value">50</span>
+          </div>
+          <div id="cleanliness">
+            Cleanliness: <span id="cleanliness-value">50</span>
+          </div>
+          <div id="energy">Energy: <span id="energy-value">50</span></div>
+        </div>
+      </div>
+      <div id="controls">
+        <button id="feed-btn">Feed <span id="feed-timer"></span></button>
+        <button id="play-btn">Play <span id="play-timer"></span></button>
+        <button id="clean-btn">Clean <span id="clean-timer"></span></button>
+        <button id="sleep-btn">Sleep <span id="sleep-timer"></span></button>
+      </div>
     </div>
 
     <script src="popup.js"></script>

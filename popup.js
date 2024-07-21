@@ -1,24 +1,62 @@
-// Load the spritesheet
-const spriteSheet = new Image();
-spriteSheet.src = "./images/Cobra Sprite Sheet.png"; // Update this path to match your file structure
-
-// Define the sprite map based on the new spritesheet
-const spriteMap = {
-  idle: { x: 0, y: 0, width: 32, height: 32, frames: 8, loop: true },
-  walk: { x: 0, y: 32, width: 32, height: 32, frames: 8, loop: true },
-  eat: {
-    x: 0,
-    y: 64,
-    width: 32,
-    height: 32,
-    frames: 6,
-    loop: true,
-    duration: 750,
+const spriteMaps = {
+  cobra: {
+    sheet: "./images/Cobra Sprite Sheet.png",
+    map: {
+      idle: { x: 0, y: 0, width: 32, height: 32, frames: 8, loop: true },
+      walk: { x: 0, y: 32, width: 32, height: 32, frames: 8, loop: true },
+      eat: { x: 0, y: 64, width: 32, height: 32, frames: 6, loop: true },
+      sit: { x: 0, y: 96, width: 32, height: 32, frames: 4, loop: true },
+      sleep: { x: 0, y: 128, width: 32, height: 32, frames: 6, loop: false },
+    //   sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false },
+    },
   },
-  sit: { x: 0, y: 96, width: 32, height: 32, frames: 4, loop: true },
-  layDown: { x: 0, y: 128, width: 32, height: 32, frames: 6, loop: false },
-  sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false }, // Updated to match the new structure
+  parrot: {
+    sheet: "./images/Parrot Sprite Sheet.png",
+    map: {
+      idle: { x: 0, y: 0, width: 32, height: 32, frames: 4, loop: true },
+      idle2: { x: 0, y: 32, width: 32, height: 32, frames: 5, loop: true },
+      walk: { x: 0, y: 64, width: 32, height: 32, frames: 8, loop: true },
+      eat: { x: 0, y: 96, width: 32, height: 32, frames: 6, loop: true },
+      sit: { x: 0, y: 128, width: 32, height: 32, frames: 5, loop: true },
+      sleep: { x: 0, y: 160, width: 32, height: 32, frames: 5, loop: false },
+    },
+  },
+  fox: {
+    sheet: "./images/fox.png",
+    map: {
+      idle: { x: 0, y: 32, width: 32, height: 32, frames: 14, loop: true },
+      walk: { x: 0, y: 96, width: 32, height: 32, frames: 11, loop: true },
+      sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false },
+      eat: { x: 0, y: 128, width: 32, height: 32, frames: 5, loop: true },
+      sit: { x: 0, y: 192, width: 32, height: 32, frames: 7, loop: false },
+    },
+  },
+  turtle: {
+    sheet: "./images/turtle.png",
+    map: {
+      idle: { x: 0, y: 32, width: 32, height: 32, frames: 10, loop: true },
+      walk: { x: 0, y: 0, width: 32, height: 32, frames: 12, loop: true },
+      sleep: { x: 0, y: 96, width: 32, height: 32, frames: 6, loop: true },
+      eat: { x: 0, y: 128, width: 32, height: 32, frames: 5, loop: true },
+      sit: { x: 0, y: 160, width: 32, height: 32, frames: 10, loop: false },
+    },
+  },
 };
+
+let spriteMap;
+let spriteSheet = new Image();
+
+function loadSpriteMap(eggType) {
+  if (spriteMaps[eggType]) {
+    spriteMap = spriteMaps[eggType].map;
+    spriteSheet.src = spriteMaps[eggType].sheet;
+    spriteSheet.onload = () => {
+      drawPet(); // Ensure the pet is drawn once the image is loaded
+    };
+  } else {
+    console.error("Invalid egg type selected.");
+  }
+}
 
 // Pet object to store state
 let pet = {
@@ -44,12 +82,21 @@ let lastFrameTime = 0;
 const FRAME_INTERVAL = 200; // Milliseconds between frame changes
 
 // Canvas setup
-const canvas = document.getElementById("pet-canvas");
-const ctx = canvas.getContext("2d");
+let canvas, ctx;
+function setupCanvas(canvasId) {
+  canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  ctx = canvas.getContext("2d");
 
-// Set canvas size
-canvas.width = 160;
-canvas.height = 160;
+  // Set canvas size
+  canvas.width = 160;
+  canvas.height = 160;
+
+  // Disable image smoothing for pixel art
+  ctx.imageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
+  ctx.mozImageSmoothingEnabled = false;
+}
 
 // Function to update pet stats
 function updateStats() {
@@ -177,7 +224,7 @@ function executeNextAction() {
       if (pet.actionQueue.length > 0) {
         executeNextAction();
       } else {
-        if (pet.currentAction !== "layDown" || !pet.isSleeping) {
+        if (pet.currentAction !== "sleep" || !pet.isSleeping) {
           pet.currentAction = "idle";
         }
       }
@@ -194,7 +241,7 @@ function updatePetSprite(currentTime) {
     } else {
       if (pet.currentFrame < spriteInfo.frames - 1) {
         pet.currentFrame += 1;
-      } else if (pet.currentAction === "layDown" && pet.isSleeping) {
+      } else if (pet.currentAction === "sleep" && pet.isSleeping) {
         pet.currentFrame = spriteInfo.frames - 1; // Hold on the last frame
       } else {
         pet.currentAction = "idle"; // Transition back to idle after animation
@@ -206,6 +253,7 @@ function updatePetSprite(currentTime) {
 
 // Function to draw pet on canvas
 function drawPet() {
+  if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const spriteInfo = spriteMap[pet.currentAction];
@@ -245,17 +293,6 @@ function animatePet(currentTime) {
   requestAnimationFrame(animatePet);
 }
 
-// Function for random actions
-// let randomActionTimeout;
-// function randomAction() {
-//   const actions = ["idle", "walk", "sit", "layDown", "sleep"];
-//   const randomIndex = Math.floor(Math.random() * actions.length);
-//   pet.currentAction = actions[randomIndex];
-
-//   // Set a timeout for the next random action
-//   randomActionTimeout = setTimeout(randomAction, Math.random() * 5000 + 3000);
-// }
-
 // Interaction functions
 function feed() {
   if (pet.cooldowns.feed === 0 && !pet.isSleeping) {
@@ -291,12 +328,13 @@ function clean() {
 function sleep() {
   if (pet.cooldowns.sleep === 0 && !pet.isSleeping) {
     pet.isSleeping = true;
-    queueAction("layDown", spriteMap.layDown.frames * FRAME_INTERVAL);
+    queueAction("sleep", spriteMap.sleep.frames * FRAME_INTERVAL);
     pet.cooldowns.sleep = 60;
     startCooldownTimer("sleep", pet.cooldowns.sleep, () => {
       pet.isSleeping = false;
       pet.currentAction = "idle";
       updateStats();
+      updateUI(); // Ensure buttons are re-enabled
     });
     updateStats();
   }
@@ -311,11 +349,15 @@ function loadPet() {
   chrome.storage.local.get(["pet"], (result) => {
     if (result.pet) {
       pet = result.pet;
-      //   pet.currentAction = "idle"
+      // Ensure the pet wakes up if sleeping duration is over
+      if (pet.isSleeping && pet.cooldowns.sleep <= 0) {
+        pet.isSleeping = false;
+        pet.currentAction = "idle";
+      }
       updateStats();
+      setupCanvas("pet-canvas-main"); // Setup canvas when pet is loaded
+      requestAnimationFrame(animatePet); // Start animation after loading
     }
-    // Start random actions after loading
-    // setTimeout(randomAction, 5000);
   });
 }
 
@@ -348,8 +390,118 @@ document.getElementById("sleep-btn").addEventListener("click", sleep);
 // Initialize the game
 spriteSheet.onload = () => {
   loadPet();
-  requestAnimationFrame(animatePet);
 };
 
 // Update stats periodically
 setInterval(updateStats, 1000);
+
+// Save pet state periodically
+setInterval(savePet, 5000);
+
+document.addEventListener("DOMContentLoaded", function () {
+  const onboardingScreens = document.querySelectorAll(".screen");
+  let currentScreenIndex = 0;
+  let selectedEggType = null;
+
+  function showScreen(index) {
+    onboardingScreens.forEach((screen, i) => {
+      screen.classList.toggle("active", i === index);
+    });
+  }
+
+  function nextScreen() {
+    if (currentScreenIndex < onboardingScreens.length - 1) {
+      currentScreenIndex += 1;
+      showScreen(currentScreenIndex);
+    } else {
+      document.getElementById("onboarding").classList.add("hidden");
+      document.getElementById("main-app").classList.remove("hidden");
+      setupCanvas("pet-canvas-main");
+      requestAnimationFrame(animatePet);
+    }
+  }
+
+  document
+    .getElementById("get-started-btn")
+    .addEventListener("click", nextScreen);
+  document.getElementById("continue-btn").addEventListener("click", nextScreen);
+  document
+    .getElementById("finish-tutorial-btn")
+    .addEventListener("click", nextScreen);
+  document
+    .getElementById("finish-onboarding-btn")
+    .addEventListener("click", () => {
+      chrome.storage.local.set({ onboardingCompleted: true }, nextScreen);
+    });
+
+  // Example egg options setup
+  const eggOptionsContainer = document.getElementById("egg-options");
+  const eggSprites = {
+    cobra: "blueEgg.png",
+    parrot: "redEgg.png",
+    fox: "yellowEgg.png",
+    turtle: "greenEgg.png",
+  };
+
+  Object.keys(eggSprites).forEach((eggType) => {
+    const img = document.createElement("img");
+    img.src = `./images/${eggSprites[eggType]}`;
+    img.addEventListener("click", () => {
+      selectedEggType = eggType;
+      document
+        .querySelectorAll("#egg-options img")
+        .forEach((eggImg) => eggImg.classList.remove("selected"));
+      img.classList.add("selected");
+    });
+    eggOptionsContainer.appendChild(img);
+  });
+
+  document
+    .getElementById("next-choose-egg-btn")
+    .addEventListener("click", () => {
+      if (!selectedEggType) {
+        alert("Please select an egg.");
+      } else {
+        chrome.storage.local.set({ selectedEggType: selectedEggType });
+        loadSpriteMap(selectedEggType); // Load the selected sprite map
+        nextScreen();
+      }
+    });
+
+  document.getElementById("next-name-egg-btn").addEventListener("click", () => {
+    const eggName = document.getElementById("egg-name-input").value.trim();
+    if (eggName === "") {
+      alert("Please enter a name for your pet.");
+    } else {
+      chrome.storage.local.set({ petName: eggName });
+      nextScreen();
+      setTimeout(() => {
+        nextScreen();
+      }, 5000); // Simulate a 5-second hatching process
+    }
+  });
+
+  function initializeExtension() {
+    chrome.storage.local.get(
+      ["onboardingCompleted", "selectedEggType", "petName"],
+      (result) => {
+        if (result.onboardingCompleted) {
+          document.getElementById("onboarding").classList.add("hidden");
+          document.getElementById("main-app").classList.remove("hidden");
+          setupCanvas("pet-canvas-main");
+          if (result.selectedEggType) {
+            loadSpriteMap(result.selectedEggType);
+          }
+          if (result.petName) {
+            // Use the petName if needed
+          }
+          requestAnimationFrame(animatePet);
+        } else {
+          showScreen(currentScreenIndex);
+        }
+      }
+    );
+  }
+
+  initializeExtension();
+});

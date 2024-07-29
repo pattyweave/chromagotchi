@@ -1,17 +1,17 @@
 const spriteMaps = {
   cobra: {
-    sheet: "./images/Cobra Sprite Sheet.png",
+    sheet: "./images/cobra.png",
     map: {
       idle: { x: 0, y: 0, width: 32, height: 32, frames: 8, loop: true },
       walk: { x: 0, y: 32, width: 32, height: 32, frames: 8, loop: true },
       eat: { x: 0, y: 64, width: 32, height: 32, frames: 6, loop: true },
       sit: { x: 0, y: 96, width: 32, height: 32, frames: 4, loop: true },
       sleep: { x: 0, y: 128, width: 32, height: 32, frames: 6, loop: false },
-    //   sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false },
+      //   sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false },
     },
   },
   parrot: {
-    sheet: "./images/Parrot Sprite Sheet.png",
+    sheet: "./images/parrot.png",
     map: {
       idle: { x: 0, y: 0, width: 32, height: 32, frames: 4, loop: true },
       idle2: { x: 0, y: 32, width: 32, height: 32, frames: 5, loop: true },
@@ -26,7 +26,7 @@ const spriteMaps = {
     map: {
       idle: { x: 0, y: 32, width: 32, height: 32, frames: 14, loop: true },
       walk: { x: 0, y: 96, width: 32, height: 32, frames: 11, loop: true },
-      sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: false },
+      sleep: { x: 0, y: 160, width: 32, height: 32, frames: 6, loop: true },
       eat: { x: 0, y: 128, width: 32, height: 32, frames: 5, loop: true },
       sit: { x: 0, y: 192, width: 32, height: 32, frames: 7, loop: false },
     },
@@ -329,6 +329,7 @@ function sleep() {
   if (pet.cooldowns.sleep === 0 && !pet.isSleeping) {
     pet.isSleeping = true;
     queueAction("sleep", spriteMap.sleep.frames * FRAME_INTERVAL);
+    pet.energy += 30;
     pet.cooldowns.sleep = 60;
     startCooldownTimer("sleep", pet.cooldowns.sleep, () => {
       pet.isSleeping = false;
@@ -397,6 +398,57 @@ setInterval(updateStats, 1000);
 
 // Save pet state periodically
 setInterval(savePet, 5000);
+
+function checkDailyLogin() {
+  const lastLogin = new Date(pet.lastLogin);
+  const now = new Date();
+  const daysBetween = Math.floor((now - lastLogin) / (1000 * 60 * 60 * 24));
+
+  if (daysBetween >= 1) {
+    pet.dailyLoginStreak += 1;
+    pet.lastLogin = now;
+    // Reward the user based on the login streak
+    giveDailyReward(pet.dailyLoginStreak);
+  }
+}
+
+function giveDailyReward(streak) {
+  // Reward logic based on the streak
+  if (streak === 1) {
+    pet.coins += 10;
+  } else if (streak === 7) {
+    pet.coins += 100;
+    // Give a special item or bonus for a 7-day streak
+  }
+  // Update UI to show the reward
+}
+
+function showNotification(message) {
+  const banner = document.getElementById("notification-banner");
+  banner.textContent = message;
+  banner.classList.remove("hidden");
+  setTimeout(() => banner.classList.add("hidden"), 5000); // Hide after 5 seconds
+}
+
+document.getElementById("trophy-icon").addEventListener("click", () => {
+  // Open achievements modal or page
+  showAchievements();
+});
+
+function showAchievements() {
+  // Logic to display achievements
+  alert("Displaying achievements...");
+}
+
+document.getElementById("expand-btn").addEventListener("click", () => {
+  // Toggle visibility of additional features
+  toggleAdditionalFeatures();
+});
+
+function toggleAdditionalFeatures() {
+  // Logic to expand and show more features
+  alert("Expanding for more features...");
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const onboardingScreens = document.querySelectorAll(".screen");
@@ -502,6 +554,35 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     );
   }
+
+  // Social sharing functionality
+//   function generateShareableImage() {
+//     const element = document.getElementById("shareable-content");
+//     html2canvas(element).then((canvas) => {
+//       const imgData = canvas.toDataURL("image/png");
+//       const generatedImage = document.getElementById("generated-image");
+//       generatedImage.src = imgData;
+//       generatedImage.classList.remove("hidden");
+
+//       const twitterShareBtn = document.getElementById("twitter-share-btn");
+//       const instagramShareBtn = document.getElementById("instagram-share-btn");
+//       const shareMessage = "Check out my virtual pet!";
+
+//       twitterShareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+//         shareMessage
+//       )}&url=${encodeURIComponent(imgData)}`;
+//       instagramShareBtn.href = `https://www.instagram.com/share?text=${encodeURIComponent(
+//         shareMessage
+//       )}&url=${encodeURIComponent(imgData)}`;
+
+//       twitterShareBtn.classList.remove("hidden");
+//       instagramShareBtn.classList.remove("hidden");
+//     });
+//   }
+
+//   document
+//     .getElementById("share-btn")
+//     .addEventListener("click", generateShareableImage);
 
   initializeExtension();
 });

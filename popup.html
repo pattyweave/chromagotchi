@@ -60,15 +60,13 @@
         <div id="pet-info">
           <div id="pet-mood">Mood: <span id="mood-value">Normal</span></div>
         </div>
-        <div id="pet-stats">
-          <div id="hunger">Hunger: <span id="hunger-value">50</span></div>
-          <div id="happiness">
-            Happiness: <span id="happiness-value">50</span>
-          </div>
-          <div id="cleanliness">
-            Cleanliness: <span id="cleanliness-value">50</span>
-          </div>
-          <div id="energy">Energy: <span id="energy-value">50</span></div>
+        <div id="stats-container">
+          <span id="hunger-icon">🍗</span> <span id="hunger-value">50</span>
+          <span id="happiness-icon">😊</span>
+          <span id="happiness-value">50</span>
+          <span id="cleanliness-icon">🛁</span>
+          <span id="cleanliness-value">50</span>
+          <span id="energy-icon">💤</span> <span id="energy-value">50</span>
         </div>
       </div>
       <div id="controls">
@@ -77,8 +75,34 @@
         <button id="clean-btn">Clean <span id="clean-timer"></span></button>
         <button id="sleep-btn">Sleep <span id="sleep-timer"></span></button>
       </div>
+
+      <!-- <div id="shareable-content" class="hidden">
+        <div class="shareable-image" id="shareable-image">
+          <img class="pet-image" id="shareable-pet-image" src="" alt="Your Pet">
+          <div class="pet-stats">
+            <div>Hunger: <span id="shareable-hunger-value">50</span></div>
+            <div>Happiness: <span id="shareable-happiness-value">50</span></div>
+            <div>Cleanliness: <span id="shareable-cleanliness-value">50</span></div>
+            <div>Energy: <span id="shareable-energy-value">50</span></div>
+          </div>
+          <div class="achievement" id="shareable-achievement">Achievement: None</div>
+        </div>
+      </div>
+      
+      <div id="social-share">
+        <button id="share-btn">Share</button>
+        <img id="generated-image" class="hidden" alt="Shareable Image">
+        <a id="twitter-share-btn" class="hidden" href="#" target="_blank">Share on Twitter</a>
+        <a id="instagram-share-btn" class="hidden" href="#" target="_blank">Share on Instagram</a>
+      </div>
+    </div> -->
+      <div id="additional-features">
+        <span id="trophy-icon">🏆</span>
+        <button id="expand-btn">Expand for More</button>
+      </div>
     </div>
 
+    <!-- <script src="libs/html2canvas.min.js"></script> -->
     <script src="popup.js"></script>
   </body>
 </html>

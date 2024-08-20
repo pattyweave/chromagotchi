@@ -41,6 +41,16 @@ const spriteMaps = {
       sit: { x: 0, y: 160, width: 32, height: 32, frames: 10, loop: false },
     },
   },
+  octopus: {
+    sheet: "./images/Octopus Sprite Sheet.png",
+    map: {
+      idle: { x: 0, y: -8, width: 32, height: 32, frames: 4, loop: true },
+      walk: { x: 0, y: 24, width: 32, height: 32, frames: 4, loop: true },
+      sleep: { x: 0, y: 88, width: 32, height: 32, frames: 6, loop: false },
+      eat: { x: 0, y: 120, width: 32, height: 32, frames: 6, loop: true },
+      sit: { x: 0, y: 184, width: 32, height: 32, frames: 7, loop: false },
+    },
+  },
 };
 
 let spriteMap;
@@ -58,6 +68,119 @@ function loadSpriteMap(eggType) {
   }
 }
 
+// Achievements object
+const achievements = {
+  firstFeed: {
+    name: "First Feed",
+    description: "Feed your pet for the first time.",
+    earned: false,
+  },
+  firstPlay: {
+    name: "First Play",
+    description: "Play with your pet for the first time.",
+    earned: false,
+  },
+  firstClean: {
+    name: "First Clean",
+    description: "Clean your pet for the first time.",
+    earned: false,
+  },
+  firstSleep: {
+    name: "First Sleep",
+    description: "Put your pet to sleep for the first time.",
+    earned: false,
+  },
+  levelUp10: {
+    name: "Level Up 10",
+    description: "Reach level 10.",
+    earned: false,
+  },
+  levelUp20: {
+    name: "Level Up 20",
+    description: "Reach level 20.",
+    earned: false,
+  },
+  levelUp30: {
+    name: "Level Up 30",
+    description: "Reach level 30.",
+    earned: false,
+  },
+  maxStats: {
+    name: "Max Stats",
+    description: "Achieve 100 in hunger, happiness, cleanliness, and energy.",
+    earned: false,
+  },
+  dailyCare7: {
+    name: "Daily Care 7",
+    description: "Interact with your pet daily for 7 days.",
+    earned: false,
+  },
+  dailyCare30: {
+    name: "Daily Care 30",
+    description: "Interact with your pet daily for 30 days.",
+    earned: false,
+  },
+  dailyCare90: {
+    name: "Daily Care 90",
+    description: "Interact with your pet daily for 90 days.",
+    earned: false,
+  },
+  birthday: {
+    name: "Birthday",
+    description: "Celebrate your pet’s birthday.",
+    earned: false,
+  },
+  holidayEvent: {
+    name: "Holiday Event",
+    description: "Participate in a holiday-themed event.",
+    earned: false,
+  },
+  memoryMaster: {
+    name: "Memory Master",
+    description: "Complete the memory match game 10 times.",
+    earned: false,
+  },
+  catchChampion: {
+    name: "Catch Champion",
+    description: "Score 50 points in the catch game.",
+    earned: false,
+  },
+  clickerKing: {
+    name: "Clicker King",
+    description: "Click the target 100 times in the clicker game.",
+    earned: false,
+  },
+};
+
+// Load achievements from storage
+chrome.storage.local.get("achievements", function (result) {
+  if (result.achievements) {
+    Object.assign(achievements, result.achievements);
+    checkAchievements();
+  }
+});
+
+// Function to save achievements to storage
+function saveAchievements() {
+  chrome.storage.local.set({ achievements: achievements });
+}
+
+// Function to check and display achievements
+function checkAchievements() {
+  const achievementsList = document.getElementById("achievements-list");
+  achievementsList.innerHTML = ""; // Clear existing achievements
+
+  for (const key in achievements) {
+    const achievement = achievements[key];
+    const li = document.createElement("li");
+    li.textContent = `${achievement.name} - ${achievement.description}`;
+    li.classList.add(
+      achievement.earned ? "achievement-earned" : "achievement-pending"
+    );
+    achievementsList.appendChild(li);
+  }
+}
+
 // Pet object to store state
 let pet = {
   hunger: 50,
@@ -68,6 +191,8 @@ let pet = {
   currentAction: "idle",
   currentFrame: 0,
   isSleeping: false,
+  animationDirection: 1, // 1 for forward, -1 for reverse
+  loopBack: false, // Whether to play in reverse after forward
   actionQueue: [],
   cooldowns: {
     feed: 0,
@@ -200,9 +325,9 @@ function checkForAttention() {
   }
 }
 
-// Action queue system
-function queueAction(action, duration) {
-  pet.actionQueue.push({ action, duration });
+// Action Queue System
+function queueAction(action, duration, loopBack = false) {
+  pet.actionQueue.push({ action, duration, loopBack });
   if (pet.actionQueue.length === 1) {
     executeNextAction();
   }
@@ -210,14 +335,16 @@ function queueAction(action, duration) {
 
 function executeNextAction() {
   if (pet.actionQueue.length > 0) {
-    const { action, duration } = pet.actionQueue[0];
+    const { action, duration, loopBack } = pet.actionQueue[0];
     pet.currentAction = action;
     pet.currentFrame = 0;
+    pet.animationDirection = 1; // Start with forward direction
+    pet.loopBack = loopBack;
 
     // Calculate the total duration of non-looping animations
     const totalDuration = spriteMap[action].loop
       ? duration
-      : spriteMap[action].frames * FRAME_INTERVAL;
+      : spriteMap[action].frames * FRAME_INTERVAL * (loopBack ? 2 : 1);
 
     setTimeout(() => {
       pet.actionQueue.shift();
@@ -236,17 +363,32 @@ function executeNextAction() {
 function updatePetSprite(currentTime) {
   if (currentTime - lastFrameTime > FRAME_INTERVAL) {
     const spriteInfo = spriteMap[pet.currentAction];
+
+    // Determine the next frame
     if (spriteInfo.loop) {
-      pet.currentFrame = (pet.currentFrame + 1) % spriteInfo.frames;
+      pet.currentFrame =
+        (pet.currentFrame + pet.animationDirection) % spriteInfo.frames;
     } else {
-      if (pet.currentFrame < spriteInfo.frames - 1) {
-        pet.currentFrame += 1;
-      } else if (pet.currentAction === "sleep" && pet.isSleeping) {
-        pet.currentFrame = spriteInfo.frames - 1; // Hold on the last frame
+      if (pet.animationDirection === 1) {
+        if (pet.currentFrame < spriteInfo.frames - 1) {
+          pet.currentFrame += 1;
+        } else if (pet.loopBack) {
+          pet.animationDirection = -1; // Reverse the direction
+        } else if (pet.currentAction === "sleep" && pet.isSleeping) {
+          pet.currentFrame = spriteInfo.frames - 1; // Stay in the last frame
+        } else {
+          pet.currentAction = "idle";
+        }
       } else {
-        pet.currentAction = "idle"; // Transition back to idle after animation
+        if (pet.currentFrame > 0) {
+          pet.currentFrame -= 1;
+        } else {
+          pet.currentAction = "idle";
+          pet.animationDirection = 1; // Reset to forward direction
+        }
       }
     }
+
     lastFrameTime = currentTime;
   }
 }
@@ -297,10 +439,15 @@ function animatePet(currentTime) {
 function feed() {
   if (pet.cooldowns.feed === 0 && !pet.isSleeping) {
     pet.hunger = Math.min(100, pet.hunger + 20);
-    queueAction("eat", spriteMap["eat"].frames * FRAME_INTERVAL);
+    queueAction("eat", spriteMap["eat"].frames * FRAME_INTERVAL, true);
     pet.cooldowns.feed = 10; // 10 second cooldown
     startCooldownTimer("feed", pet.cooldowns.feed);
+    if (!achievements.firstFeed.earned) {
+      achievements.firstFeed.earned = true;
+      saveAchievements();
+    }
     updateStats();
+    checkAchievements();
   }
 }
 
@@ -308,27 +455,37 @@ function play() {
   if (pet.cooldowns.play === 0 && !pet.isSleeping) {
     pet.happiness = Math.min(100, pet.happiness + 20);
     pet.energy = Math.max(0, pet.energy - 10);
-    queueAction("walk", 3000);
+    queueAction("walk", 3000, true);
     pet.cooldowns.play = 15; // 15 second cooldown
     startCooldownTimer("play", pet.cooldowns.play);
+    if (!achievements.firstPlay.earned) {
+      achievements.firstPlay.earned = true;
+      saveAchievements();
+    }
     updateStats();
+    checkAchievements();
   }
 }
 
 function clean() {
   if (pet.cooldowns.clean === 0 && !pet.isSleeping) {
     pet.cleanliness = Math.min(100, pet.cleanliness + 20);
-    queueAction("sit", 3000);
+    queueAction("sit", 3000, true);
     pet.cooldowns.clean = 20; // 20 second cooldown
     startCooldownTimer("clean", pet.cooldowns.clean);
+    if (!achievements.firstClean.earned) {
+      achievements.firstClean.earned = true;
+      saveAchievements();
+    }
     updateStats();
+    checkAchievements();
   }
 }
 
 function sleep() {
   if (pet.cooldowns.sleep === 0 && !pet.isSleeping) {
     pet.isSleeping = true;
-    queueAction("sleep", spriteMap.sleep.frames * FRAME_INTERVAL);
+    queueAction("sleep", spriteMap.sleep.frames * FRAME_INTERVAL, false); // No loop back for sleep
     pet.energy += 30;
     pet.cooldowns.sleep = 60;
     startCooldownTimer("sleep", pet.cooldowns.sleep, () => {
@@ -337,7 +494,12 @@ function sleep() {
       updateStats();
       updateUI(); // Ensure buttons are re-enabled
     });
+    if (!achievements.firstSleep.earned) {
+      achievements.firstSleep.earned = true;
+      saveAchievements();
+    }
     updateStats();
+    checkAchievements();
   }
 }
 
@@ -381,6 +543,9 @@ function startCooldownTimer(action, duration, callback) {
 
   updateTimer();
 }
+
+// Initial call to display achievements
+checkAchievements();
 
 // Event listeners
 document.getElementById("feed-btn").addEventListener("click", feed);
@@ -493,6 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
     parrot: "redEgg.png",
     fox: "yellowEgg.png",
     turtle: "greenEgg.png",
+    octopus: "violetEgg.png",
   };
 
   Object.keys(eggSprites).forEach((eggType) => {
@@ -556,33 +722,33 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Social sharing functionality
-//   function generateShareableImage() {
-//     const element = document.getElementById("shareable-content");
-//     html2canvas(element).then((canvas) => {
-//       const imgData = canvas.toDataURL("image/png");
-//       const generatedImage = document.getElementById("generated-image");
-//       generatedImage.src = imgData;
-//       generatedImage.classList.remove("hidden");
+  //   function generateShareableImage() {
+  //     const element = document.getElementById("shareable-content");
+  //     html2canvas(element).then((canvas) => {
+  //       const imgData = canvas.toDataURL("image/png");
+  //       const generatedImage = document.getElementById("generated-image");
+  //       generatedImage.src = imgData;
+  //       generatedImage.classList.remove("hidden");
 
-//       const twitterShareBtn = document.getElementById("twitter-share-btn");
-//       const instagramShareBtn = document.getElementById("instagram-share-btn");
-//       const shareMessage = "Check out my virtual pet!";
+  //       const twitterShareBtn = document.getElementById("twitter-share-btn");
+  //       const instagramShareBtn = document.getElementById("instagram-share-btn");
+  //       const shareMessage = "Check out my virtual pet!";
 
-//       twitterShareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-//         shareMessage
-//       )}&url=${encodeURIComponent(imgData)}`;
-//       instagramShareBtn.href = `https://www.instagram.com/share?text=${encodeURIComponent(
-//         shareMessage
-//       )}&url=${encodeURIComponent(imgData)}`;
+  //       twitterShareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+  //         shareMessage
+  //       )}&url=${encodeURIComponent(imgData)}`;
+  //       instagramShareBtn.href = `https://www.instagram.com/share?text=${encodeURIComponent(
+  //         shareMessage
+  //       )}&url=${encodeURIComponent(imgData)}`;
 
-//       twitterShareBtn.classList.remove("hidden");
-//       instagramShareBtn.classList.remove("hidden");
-//     });
-//   }
+  //       twitterShareBtn.classList.remove("hidden");
+  //       instagramShareBtn.classList.remove("hidden");
+  //     });
+  //   }
 
-//   document
-//     .getElementById("share-btn")
-//     .addEventListener("click", generateShareableImage);
+  //   document
+  //     .getElementById("share-btn")
+  //     .addEventListener("click", generateShareableImage);
 
   initializeExtension();
 });

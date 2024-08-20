@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtual Pet</title>
     <link rel="stylesheet" href="popup.css" />
+    <!-- Add Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <!-- Onboarding HTML -->
@@ -14,24 +22,29 @@
         <p>Ready to start your journey?</p>
         <button id="get-started-btn" class="primary-btn">Get Started</button>
       </div>
+
       <div id="choose-egg-screen" class="screen hidden">
-        <h1>Choose an Egg</h1>
-        <div id="egg-options">
-          <!-- Egg options here -->
+        <h1>Choose Your Egg</h1>
+        <div id="egg-display">
+          <img id="current-egg" src="./images/blueEgg.png" alt="Egg Image" />
         </div>
-        <button id="next-choose-egg-btn" class="primary-btn">Next</button>
+        <button id="select-egg-btn" class="primary-btn">Stop and Select</button>
       </div>
-      <div id="name-egg-screen" class="screen hidden">
-        <h1>Name Your Egg</h1>
-        <input type="text" id="egg-name-input" placeholder="Enter pet name" />
-        <button id="next-name-egg-btn" class="primary-btn">Next</button>
-      </div>
+
       <div id="hatching-screen" class="screen hidden">
         <h1>Your egg is hatching...</h1>
         <div id="hatching-animation">
-          <!-- Hatching animation here -->
+          <!-- Animation canvas or image -->
+          <canvas id="hatching-canvas"></canvas>
         </div>
       </div>
+
+      <div id="name-egg-screen" class="screen hidden">
+        <h1>Name Your Pet</h1>
+        <input type="text" id="egg-name-input" placeholder="Enter pet name" />
+        <button id="next-name-egg-btn" class="primary-btn">Next</button>
+      </div>
+
       <div id="pet-intro-screen" class="screen hidden">
         <h1>Meet Your New Pet!</h1>
         <div id="pet-intro">
@@ -39,6 +52,7 @@
         </div>
         <button id="continue-btn" class="primary-btn">Continue</button>
       </div>
+
       <div id="tutorial-screen" class="screen hidden">
         <h1>Tutorial</h1>
         <div id="tutorial-steps">
@@ -46,6 +60,7 @@
         </div>
         <button id="finish-tutorial-btn" class="primary-btn">Finish</button>
       </div>
+
       <div id="daily-care-screen" class="screen hidden">
         <h1>Daily Care</h1>
         <p>Take care of your pet daily to keep them happy and healthy!</p>
@@ -55,54 +70,213 @@
 
     <!-- Main App HTML -->
     <div id="main-app" class="hidden">
+      <!-- Currency Display in Top Left -->
+      <div id="currency-display" class="top-left">
+        <span id="currency-amount-main">0</span>
+        <i class="fas fa-coins" style="color: #ffd43b"></i>
+      </div>
+      <!-- Shop Icon in Top Right -->
+      <!-- <div id="shop-icon" class="top-right">
+        <i class="fas fa-store"></i>
+      </div> -->
       <div id="pet-container">
-        <canvas id="pet-canvas-main"></canvas>
-        <div id="pet-info">
-          <div id="pet-mood">Mood: <span id="mood-value">Normal</span></div>
+        <div id="status-radials-left">
+          <div class="radial-indicator" id="health-indicator">
+            <svg viewBox="0 0 36 36" class="circular-chart green">
+              <path
+                class="circle-bg"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                class="circle"
+                id="health-circle"
+                stroke-dasharray="0, 100"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <span class="indicator-label">Health</span>
+          </div>
+          <div class="radial-indicator" id="hunger-indicator">
+            <svg viewBox="0 0 36 36" class="circular-chart yellow">
+              <path
+                class="circle-bg"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                class="circle"
+                id="hunger-circle"
+                stroke-dasharray="0, 100"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <span class="indicator-label">Hunger</span>
+          </div>
         </div>
-        <div id="stats-container">
-          <span id="hunger-icon">🍗</span> <span id="hunger-value">50</span>
-          <span id="happiness-icon">😊</span>
-          <span id="happiness-value">50</span>
-          <span id="cleanliness-icon">🛁</span>
-          <span id="cleanliness-value">50</span>
-          <span id="energy-icon">💤</span> <span id="energy-value">50</span>
+        <canvas id="pet-canvas-main"></canvas>
+
+        <div id="status-radials-right">
+          <div class="radial-indicator" id="mood-indicator">
+            <svg viewBox="0 0 36 36" class="circular-chart blue">
+              <path
+                class="circle-bg"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                class="circle"
+                id="mood-circle"
+                stroke-dasharray="0, 100"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <span class="indicator-label">Mood</span>
+          </div>
+          <div class="radial-indicator" id="energy-indicator">
+            <svg viewBox="0 0 36 36" class="circular-chart red">
+              <path
+                class="circle-bg"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                class="circle"
+                id="energy-circle"
+                stroke-dasharray="0, 100"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <span class="indicator-label">Energy</span>
+          </div>
         </div>
       </div>
+      <!-- 
       <div id="controls">
         <button id="feed-btn">Feed <span id="feed-timer"></span></button>
         <button id="play-btn">Play <span id="play-timer"></span></button>
         <button id="clean-btn">Clean <span id="clean-timer"></span></button>
         <button id="sleep-btn">Sleep <span id="sleep-timer"></span></button>
-      </div>
+      </div> -->
 
-      <!-- <div id="shareable-content" class="hidden">
-        <div class="shareable-image" id="shareable-image">
-          <img class="pet-image" id="shareable-pet-image" src="" alt="Your Pet">
-          <div class="pet-stats">
-            <div>Hunger: <span id="shareable-hunger-value">50</span></div>
-            <div>Happiness: <span id="shareable-happiness-value">50</span></div>
-            <div>Cleanliness: <span id="shareable-cleanliness-value">50</span></div>
-            <div>Energy: <span id="shareable-energy-value">50</span></div>
+      <div id="control-panel">
+        <div class="control-icon" id="feed-icon">
+          <div class="timer animatable">
+            <svg>
+              <circle cx="50%" cy="50%" r="20" />
+              <circle cx="50%" cy="50%" r="20" pathLength="1" />
+              <text
+                id="feed-icon-timeLeft"
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                alignment-baseline="middle"
+                dominant-baseline="middle"
+              ></text>
+            </svg>
           </div>
-          <div class="achievement" id="shareable-achievement">Achievement: None</div>
+          <i class="fas fa-cookie-bite"></i>
+          <span class="badge" id="food-badge">0</span>
+          <span>Feed</span>
+        </div>
+
+        <div class="control-icon" id="play-icon">
+          <div class="timer animatable">
+            <svg>
+              <circle cx="50%" cy="50%" r="20" />
+              <circle cx="50%" cy="50%" r="20" pathLength="1" />
+              <text
+                id="play-icon-timeLeft"
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                alignment-baseline="middle"
+                dominant-baseline="middle"
+              ></text>
+            </svg>
+          </div>
+          <i class="fas fa-otter"></i>
+          <span>Play</span>
+        </div>
+        <div class="control-icon" id="clean-icon">
+          <div class="timer animatable">
+            <svg>
+              <circle cx="50%" cy="50%" r="20" />
+              <circle cx="50%" cy="50%" r="20" pathLength="1" />
+              <text
+                id="clean-icon-timeLeft"
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                alignment-baseline="middle"
+                dominant-baseline="middle"
+              ></text>
+            </svg>
+          </div>
+          <i class="fas fa-soap"></i>
+          <span class="badge" id="clean-badge">0</span>
+          <span>Clean</span>
+        </div>
+        <div class="control-icon" id="sleep-icon">
+          <div class="timer animatable">
+            <svg>
+              <circle cx="50%" cy="50%" r="20" />
+              <circle cx="50%" cy="50%" r="20" pathLength="1" />
+              <text
+                id="sleep-icon-timeLeft"
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                alignment-baseline="middle"
+                dominant-baseline="middle"
+              ></text>
+            </svg>
+          </div>
+          <i class="fas fa-moon"></i>
+          <span>Sleep</span>
+        </div>
+        <div
+          class="control-icon"
+          id="shop-icon"
+          href="https://chromagotchi.com"
+        >
+          <div class="cooldown-timer">
+            <div class="cooldown-overlay" id="shop-cooldown"></div>
+          </div>
+          <i class="fas fa-store"></i>
+          <span>Shop</span>
         </div>
       </div>
-      
-      <div id="social-share">
-        <button id="share-btn">Share</button>
-        <img id="generated-image" class="hidden" alt="Shareable Image">
-        <a id="twitter-share-btn" class="hidden" href="#" target="_blank">Share on Twitter</a>
-        <a id="instagram-share-btn" class="hidden" href="#" target="_blank">Share on Instagram</a>
-      </div>
-    </div> -->
-      <div id="additional-features">
-        <span id="trophy-icon">🏆</span>
-        <button id="expand-btn">Expand for More</button>
-      </div>
+
+      <!-- <button id="open-shop-btn">Shop</button> -->
     </div>
 
-    <!-- <script src="libs/html2canvas.min.js"></script> -->
-    <script src="popup.js"></script>
+    <!-- Shop Section -->
+    <div id="shop-section" class="hidden">
+      <h2>Shop</h2>
+      <div id="currency-display">
+        Currency: <span id="currency-amount-shop">0</span>
+      </div>
+
+      <div class="shop-item">
+        <img src="images/food-icon.png" alt="Food" />
+        <button id="buy-food-btn">Buy Food (10 currency)</button>
+      </div>
+
+      <div class="shop-item">
+        <img src="images/soap-icon.png" alt="Cleaning" />
+        <button id="buy-clean-btn">Buy Soap/Brush (5 currency)</button>
+      </div>
+
+      <button id="close-shop-btn">Close Shop</button>
+    </div>
+
+    <!-- <button id="memory-game-btn">Play Memory Game</button> -->
+
+    <!-- Include the modular JavaScript files -->
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/animation.js"></script>
+    <script type="module" src="js/achievements.js"></script>
+    <script type="module" src="js/pet.js"></script>
+    <script type="module" src="js/onboarding.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/shop.js"></script>
+    <script type="module" src="js/canvas.js"></script>
   </body>
 </html>

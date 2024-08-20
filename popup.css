@@ -1,9 +1,9 @@
 body {
-  width: 300px;
-  font-family: "Arial", sans-serif;
-  /* background-color: #f0f0f0; */
+  font-family: "Roboto", sans-serif;
+  background-color: #f0f0f0;
   margin: 0;
-  padding: 10px;
+  /* padding: 10px; */
+  width: 500px;
 }
 
 .screen {
@@ -20,13 +20,14 @@ body {
 
 #pet-container {
   background-color: #ffffff;
-  /* border: 2px solid #333; */
   border-radius: 10px;
   padding: 20px;
+  padding-bottom: 100px;
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 #pet-canvas {
@@ -46,6 +47,13 @@ body {
   font-size: 18px;
 }
 
+#stats-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px; /* Increased margin for better spacing */
+  font-size: 18px;
+}
+
 #controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -62,11 +70,12 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 button:hover {
   opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adding a shadow on hover */
 }
 
 button span {
@@ -178,14 +187,6 @@ input[type="text"] {
   margin-bottom: 20px;
 }
 
-#extension {
-  width: 300px;
-  font-family: "Arial", sans-serif;
-  background-color: #f0f0f0;
-  margin: 0;
-  padding: 10px;
-}
-
 #notification-banner {
   background-color: #ff9800;
   color: white;
@@ -197,24 +198,11 @@ input[type="text"] {
 
 #pet-canvas-container {
   background-color: #ffffff;
-  border: 2px solid #333;
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 10px;
   text-align: center;
-}
-
-#stats-container {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-#controls-container {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 #additional-features {
@@ -227,7 +215,6 @@ input[type="text"] {
   width: 500px;
   height: 500px;
   background-color: #ffffff;
-  border: 2px solid #333;
   border-radius: 10px;
   padding: 20px;
   text-align: center;
@@ -251,4 +238,269 @@ input[type="text"] {
   margin-top: 20px;
   font-size: 16px;
   font-weight: bold;
+}
+
+#achievements {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#achievements h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+#achievements-list {
+  list-style-type: none;
+  padding: 0;
+  font-size: 18px;
+}
+
+#achievements-list li {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.achievement-earned {
+  color: green;
+  font-weight: bold;
+}
+
+.achievement-pending {
+  color: gray;
+}
+
+#current-egg {
+  width: 100px;
+}
+
+#shop-section {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.shop-item {
+  margin-bottom: 15px;
+}
+
+.shop-item img {
+  width: 50px;
+  height: 50px;
+}
+
+#currency-display {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#close-shop-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#currency-display {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+#inventory {
+  margin-top: 10px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.top-left {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Position shop icon in the top right corner */
+.top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+/* #shop-icon {
+  font-size: 24px;
+} */
+
+#hatching-canvas {
+  width: 100px; /* Match your frameWidth */
+  height: 100px; /* Match your frameHeight */
+  image-rendering: pixelated; /* Ensure pixel-perfect rendering */
+  image-rendering: crisp-edges;
+}
+
+#control-panel {
+  position: fixed;
+  bottom: 0;
+  width: 98%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent bar */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 0 0;
+  margin: 0 1% 5px 1%;
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+}
+
+.control-icon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: 2px;
+  background-color: green;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-icon i {
+  font-size: 24px;
+  z-index: 2;
+}
+
+.control-icon span {
+  margin-top: 5px;
+  z-index: 2;
+}
+
+.timer {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  visibility: hidden; /* Hidden by default */
+}
+
+.timer.animatable > svg > circle + circle {
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.timer > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.timer > svg > circle {
+  fill: none;
+  stroke-opacity: 0.3;
+  stroke: #0d6efd;
+  stroke-width: 5;
+  transform-origin: center center;
+  transform: rotate(-90deg);
+}
+
+.timer > svg > circle + circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  stroke-opacity: 1;
+  transition: stroke-dashoffset 1s linear; /* Ensure the animation is smooth */
+}
+
+.timer > svg > text {
+  font-size: 1rem;
+  fill: white;
+}
+
+#status-radials-left,
+#status-radials-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#status-radials-left {
+  left: 10px; /* Adjust this to position the indicators on the left */
+}
+
+#status-radials-right {
+  right: 10px; /* Adjust this to position the indicators on the right */
+}
+
+.radial-indicator {
+  margin-bottom: 20px; /* Space between indicators */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center label under indicator */
+}
+
+.circular-chart {
+  width: 40px; /* Adjusted size */
+  height: 40px; /* Adjusted size */
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  animation: progress 1s ease-out forwards;
+}
+
+.radial-indicator svg text {
+  display: none; /* Hide the percentage text */
+}
+
+.indicator-label {
+  font-size: 0.75rem; /* Label size */
+  color: #333;
+  margin-top: 5px;
+  text-align: center;
+  width: 100%; /* Ensure full width so text stays centered */
 }

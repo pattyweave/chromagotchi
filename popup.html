@@ -105,7 +105,6 @@
               <path
                 class="circle"
                 id="hunger-circle"
-                stroke-dasharray="0, 100"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
             </svg>
@@ -267,8 +266,38 @@
       <button id="close-shop-btn">Close Shop</button>
     </div>
 
+    <!-- Modal Container -->
+    <div id="auth-modal" class="modal hidden">
+      <div class="modal-content">
+        <span id="close-modal" class="close-btn">&times;</span>
+        <h2 id="auth-title">Sign In</h2>
+        <form id="auth-form">
+          <label for="email">Email</label>
+          <input type="email" id="auth-email" required />
+
+          <label for="password">Password</label>
+          <input type="password" id="auth-password" required />
+
+          <div id="confirm-password-container" class="hidden">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" />
+          </div>
+
+          <button type="submit" id="auth-submit-btn">Sign In</button>
+        </form>
+
+        <div id="auth-error" class="error-message hidden"></div>
+
+        <div class="switch-auth-mode">
+          <span id="auth-switch-text">Don't have an account?</span>
+          <a href="#" id="switch-auth-mode">Sign Up</a>
+        </div>
+      </div>
+    </div>
+
     <!-- <button id="memory-game-btn">Play Memory Game</button> -->
 
+    <script src="/libs/jwt-decode.min.js"></script>
     <!-- Include the modular JavaScript files -->
     <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/animation.js"></script>
@@ -278,5 +307,6 @@
     <script type="module" src="js/main.js"></script>
     <script type="module" src="js/shop.js"></script>
     <script type="module" src="js/canvas.js"></script>
+    <script type="module" src="js/auth.js"></script>
   </body>
 </html>

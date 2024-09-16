@@ -7,27 +7,27 @@ import {
   spriteMaps,
 } from "./animation.js";
 import { updateInventoryDisplay } from "./shop.js";
-import { shopState } from "./state.js";
+import { shopState, pet, updatePet } from "./state.js";
 
-let pet = {
-  hunger: 50,
-  happiness: 50,
-  cleanliness: 50,
-  energy: 50,
-  lastUpdate: Date.now(),
-  currentAction: "idle",
-  currentFrame: 0,
-  isSleeping: false,
-  animationDirection: 1,
-  loopBack: false,
-  actionQueue: [],
-  cooldowns: {
-    feed: 0,
-    play: 0,
-    clean: 0,
-    sleep: 0,
-  },
-};
+// let pet = {
+//   hunger: 50,
+//   happiness: 50,
+//   cleanliness: 50,
+//   energy: 50,
+//   lastUpdate: Date.now(),
+//   currentAction: "idle",
+//   currentFrame: 0,
+//   isSleeping: false,
+//   animationDirection: 1,
+//   loopBack: false,
+//   actionQueue: [],
+//   cooldowns: {
+//     feed: 0,
+//     play: 0,
+//     clean: 0,
+//     sleep: 0,
+//   },
+// };
 
 // // Directly update the bars with these hardcoded values
 // document.getElementById("health-value").style.width = `${pet.happiness}%`;
@@ -67,6 +67,7 @@ function loadSpriteMap(eggType) {
 
 // Save the pet state to local storage
 function savePet() {
+  console.log("SAVING PET");
   chrome.storage.local.set({ pet }, () => {
     if (chrome.runtime.lastError) {
       console.error("Error saving pet:", chrome.runtime.lastError);
@@ -76,19 +77,54 @@ function savePet() {
   });
 }
 
+// async function createPet(petData) {
+//   try {
+//     const response = await fetch("http://localhost:5001/api/pet/create", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+//       },
+//       body: JSON.stringify(petData),
+//     });
+
+//     const data = await response.json();
+//     if (response.ok) {
+//       console.log("Pet created successfully:", data);
+//     } else {
+//       console.error("Failed to create pet:", data.message);
+//     }
+//   } catch (error) {
+//     console.error("Error creating pet:", error);
+//   }
+// }
+
 // Load the pet state from local storage
 function loadPet() {
+  console.log("LOADING PET");
   chrome.storage.local.get(["pet"], (result) => {
     if (result.pet) {
-      pet = result.pet;
+      console.log("Loaded pet object:", result.pet);
+
+      // Update properties of the pet object instead of reassigning
+      Object.assign(pet, result.pet);
+
+      shopState.foodAmount += 3;
+      updateInventoryDisplay();
       pet.actionQueue = []; // Clear the action queue when loading the pet
       pet.currentAction = "idle"; // Reset to idle
       pet.currentFrame = 0; // Reset to the first frame
 
       updateStats(); // Ensure the stats are updated after loading
+
+      // Update radial indicators with the loaded pet stats
+      updateRadialIndicator("health", pet.happiness);
+      updateRadialIndicator("hunger", pet.hunger);
+      updateRadialIndicator("mood", pet.cleanliness);
+      updateRadialIndicator("energy", pet.energy);
+
       setupCanvas("pet-canvas-main");
       requestAnimationFrame(animatePet);
-      console.log("Pet data loaded:", pet);
     } else {
       console.log("No saved pet found, initializing with default values.");
       savePet(); // Save the initial pet object if no saved state is found
@@ -98,45 +134,56 @@ function loadPet() {
 
 // Update the pet's stats over time
 function updateStats() {
+  console.log("UPDATING STATS", pet);
   const now = Date.now();
   const timePassed = (now - pet.lastUpdate) / 1000;
 
   if (!pet.isSleeping) {
-    pet.hunger = Math.max(0, Math.min(100, pet.hunger - timePassed * 0.1));
+    pet.hunger = Math.max(0, Math.min(100, pet.hunger - timePassed * 0.02));
     pet.happiness = Math.max(
       0,
-      Math.min(100, pet.happiness - timePassed * 0.05)
+      Math.min(100, pet.happiness - timePassed * 0.01)
     );
     pet.cleanliness = Math.max(
       0,
-      Math.min(100, pet.cleanliness - timePassed * 0.08)
+      Math.min(100, pet.cleanliness - timePassed * 0.015)
     );
-    pet.energy = Math.max(0, Math.min(100, pet.energy - timePassed * 0.03));
+    pet.energy = Math.max(0, Math.min(100, pet.energy - timePassed * 0.01));
   } else {
-    pet.energy = Math.min(100, pet.energy + timePassed * 0.1);
+    pet.energy = Math.min(100, pet.energy + timePassed * 0.05);
   }
 
   pet.lastUpdate = now;
 
   // Update radial indicators
-  updateRadialIndicator("health", pet.happiness);
+  updateRadialIndicator("health", pet.cleanliness);
   updateRadialIndicator("hunger", pet.hunger);
-  updateRadialIndicator("mood", pet.cleanliness);
+  updateRadialIndicator("mood", pet.happiness);
   updateRadialIndicator("energy", pet.energy);
 
-  updateUI();
-  updateMood();
+  // updateUI();
+  // updateMood();
   savePet();
 }
 
 function updateRadialIndicator(stat, value) {
   const circle = document.getElementById(`${stat}-circle`);
-  const radius = circle.r.baseVal.value;
+
+  if (!circle) {
+    console.error(`Circle element with ID ${stat}-circle not found.`);
+    return;
+  }
+
+  // Set a default radius manually, as the r.baseVal.value may not be accessible
+  const radius = 16; // Adjust this to match your SVG circle radius
   const circumference = 2 * Math.PI * radius;
+
   const offset = circumference - (value / 100) * circumference;
 
   circle.style.strokeDasharray = `${circumference} ${circumference}`;
   circle.style.strokeDashoffset = offset;
+
+  console.log(`${stat} indicator updated to ${value}%`);
 }
 
 // Update the pet's mood based on its stats
@@ -173,11 +220,12 @@ function feed() {
     if (pet.cooldowns.feed === 0 && !pet.isSleeping) {
       shopState.foodAmount -= 1;
       pet.hunger = Math.min(100, pet.hunger + 20);
+      updatePet({ hunger: pet.hunger });
       updateInventoryDisplay();
       queueAction("eat", spriteMap["eat"].frames * FRAME_INTERVAL, true);
       pet.cooldowns.feed = 10;
       startCooldownTimer("feed-icon", pet.cooldowns.feed);
-      checkAchievements();
+      // checkAchievements();
       updateStats();
     }
   } else {
@@ -190,10 +238,11 @@ function play() {
   if (pet.cooldowns.play === 0 && !pet.isSleeping) {
     pet.happiness = Math.min(100, pet.happiness + 20);
     pet.energy = Math.max(0, pet.energy - 10);
+    updatePet({ happiness: pet.happiness, energy: pet.energy });
     queueAction("walk", 3000, true);
     pet.cooldowns.play = 15;
     startCooldownTimer("play-icon", pet.cooldowns.play);
-    checkAchievements();
+    // checkAchievements();
     updateStats();
   }
 }
@@ -207,7 +256,7 @@ function clean() {
       queueAction("sit", 3000, true);
       pet.cooldowns.clean = 20;
       startCooldownTimer("clean-icon", pet.cooldowns.clean);
-      checkAchievements();
+      // checkAchievements();
       updateStats();
     }
   } else {
@@ -219,14 +268,16 @@ function sleep() {
   if (pet.cooldowns.sleep === 0 && !pet.isSleeping) {
     pet.isSleeping = true;
     queueAction("sleep", spriteMap.sleep.frames * FRAME_INTERVAL, false);
-    pet.energy += 30;
+    pet.energy += 30; // This should increase energy
     pet.cooldowns.sleep = 60;
+    console.log("Energy after sleep:", pet.energy); // Log to check value
     startCooldownTimer("sleep-icon", pet.cooldowns.sleep, () => {
       pet.isSleeping = false;
       pet.currentAction = "idle";
       updateStats();
     });
-    checkAchievements();
+    // checkAchievements();
+    updateStats();
   }
 }
 
@@ -265,6 +316,20 @@ function startCooldownTimer(controlId, cooldownTime) {
       timerElement.style.visibility = "hidden"; // Hide the timer after cooldown
       control.style.visibility = "visible";
       timerElement.classList.remove("animatable");
+
+      // Reset the cooldown for the specific action
+      if (controlId === "feed-icon") {
+        pet.cooldowns.feed = 0;
+      } else if (controlId === "play-icon") {
+        pet.cooldowns.play = 0;
+      } else if (controlId === "clean-icon") {
+        pet.cooldowns.clean = 0;
+      } else if (controlId === "sleep-icon") {
+        pet.cooldowns.sleep = 0;
+      }
+
+      // You can also call updateStats() here if necessary to ensure UI updates
+      updateStats();
     }
   }
 

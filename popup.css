@@ -480,19 +480,38 @@ input[type="text"] {
   height: 40px; /* Adjusted size */
 }
 
+.circular-chart.yellow .circle {
+  stroke: #ffd700; /* Gold for Hunger */
+}
+
+.circular-chart.green .circle {
+  stroke: #18c40f; /* Green for something */
+}
+
+.circular-chart.red .circle {
+  stroke: #ff4500; /* OrangeRed for Health */
+}
+
+.circular-chart.blue .circle {
+  stroke: #1e90ff; /* DodgerBlue for Energy */
+}
+
+/* Background Circle Style */
 .circle-bg {
   fill: none;
   stroke: #eee;
   stroke-width: 3.8;
 }
 
+/* Foreground Circle Style */
 .circle {
   fill: none;
   stroke-width: 3.8;
   stroke-linecap: round;
-  animation: progress 1s ease-out forwards;
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
 }
-
 .radial-indicator svg text {
   display: none; /* Hide the percentage text */
 }
@@ -503,4 +522,103 @@ input[type="text"] {
   margin-top: 5px;
   text-align: center;
   width: 100%; /* Ensure full width so text stays centered */
+}
+
+/* Modal Background */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Close Button */
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+}
+
+/* Error Message */
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+/* Form Labels and Inputs */
+#auth-form label {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+#auth-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Form Buttons */
+#auth-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#auth-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Switch Between Sign In/Sign Up */
+.switch-auth-mode {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.switch-auth-mode a {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.switch-auth-mode a:hover {
+  text-decoration: underline;
+}
+
+/* Hide element */
+.hidden {
+  display: none;
 }

@@ -1,0 +1,21 @@
+{
+  "name": "chromagotchi",
+  "version": "1.0.0",
+  "description": "A virtual pet in your chrome browser",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild js/*.js --bundle --outdir=dist --minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pattyweave/chromagotchi.git"
+  },
+  "author": "Weave",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pattyweave/chromagotchi/issues"
+  },
+  "homepage": "https://github.com/pattyweave/chromagotchi#readme",
+  "dependencies": {}
+}

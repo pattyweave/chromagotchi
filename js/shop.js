@@ -1,4 +1,28 @@
+import { openAuthModal } from "./auth.js";
 import { shopState } from "./state.js";
+
+// Fetch and update the user's currency
+async function fetchAndSetUserBalance() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://localhost:5001/api/shop/balance", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch balance");
+    }
+
+    const data = await response.json();
+    shopState.currency = data.currency;
+    updateCurrencyDisplay();
+  } catch (error) {
+    console.error("Error fetching balance:", error);
+  }
+}
 
 // Update currency display
 function updateCurrencyDisplay() {
@@ -58,38 +82,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Open and close shop
-document.addEventListener("DOMContentLoaded", () => {
-  const openShopBtn = document.getElementById("open-shop-btn");
-  const closeShopBtn = document.getElementById("close-shop-btn");
-
-  if (openShopBtn) {
-    openShopBtn.addEventListener("click", () => {
-      const shopSection = document.getElementById("shop-section");
-      if (shopSection) {
-        shopSection.classList.remove("hidden");
-      } else {
-        console.error("Shop section not found.");
-      }
-    });
-  } else {
-    console.error("Open shop button not found.");
-  }
-
-  if (closeShopBtn) {
-    closeShopBtn.addEventListener("click", () => {
-      const shopSection = document.getElementById("shop-section");
-      if (shopSection) {
-        shopSection.classList.add("hidden");
-      } else {
-        console.error("Shop section not found.");
-      }
-    });
-  } else {
-    console.error("Close shop button not found.");
-  }
+// Handle shop icon click to open auth modal or proceed to shop
+document.getElementById("shop-icon").addEventListener("click", () => {
+  openAuthModal();
+  // const userConfirmed = confirm(
+  //   "You are about to leave the extension and visit our online shop. Continue?"
+  // );
+  // if (userConfirmed) {
+  //   const shopUrl = "http://localhost:3000/shop"; // Replace with your actual URL
+  //   window.open(shopUrl, "_blank"); // Opens the link in a new tab
+  // }
 });
 
 // Initial UI setup
-updateCurrencyDisplay();
-updateInventoryDisplay();
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAndSetUserBalance();
+  updateCurrencyDisplay();
+  updateInventoryDisplay();
+});

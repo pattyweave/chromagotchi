@@ -14,9 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeExtension();
 
   // Load the pet state when the extension is opened
-  document.addEventListener("DOMContentLoaded", function () {
-    loadPet();
-  });
+  console.log("DOM fully loaded and parsed");
+  loadPet();
 
   // Event listeners for onboarding buttons
   document
@@ -37,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("sleep-icon").addEventListener("click", sleep);
 
   // Initialize achievements
-  checkAchievements();
+  // checkAchievements();
 });
 
 function initializeExtension() {
